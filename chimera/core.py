@@ -4,7 +4,7 @@ from typing import Optional, Union, List, Dict, Any, Literal
 
 class Character(BaseModel):
     name: str = Field(description="角色名称", example="Elon musk")
-    alias: List[str] = Field(default_factory=list, description="角色别称、昵称", example="Elon")
+    alias: Optional[List[str]] = Field(default_factory=list, description="角色别称、昵称", example="Elon")
     gender: Optional[str] = Field(default=None, description="Female, Male, or Other. If not mentioned, then None.", example="Male")
     age: Optional[Union[str, int]] = Field(default=None, description="Age number or description. If not mentioned, then None.", examples="Young adult")
     appearance: Optional[str] = Field(default=None, description="The inherent appearance characteristics of the character, such as facial features, face shape, body shape, etc.", example="Orange long hair, deep eyes")
@@ -15,12 +15,13 @@ class Character(BaseModel):
 
 
 class Frame(BaseModel):
-    '''帧(Frame)是场景(Scene)中的一个片段，可以是某名角色的"对话"或"内心独白", 也可以是一段"场景描述"或"剧情说明"。
-    - "对话"或"内心独白"对应的角色有且只有一个
-    - "场景描述"是一段视觉场景的描述，对应角色可以是零个或多个，
-    - "剧情说明"是一段关于剧情推进、解释、说明的描述，对应的角色可以是零个或多个，'''
-    type: Literal["对话", "内心独白", "场景描述", "剧情说明"]
-    character_names: List[str] = Field(default_factory=list)
+    '''帧(Frame)是场景(Scene)中的一个片段，可以是某名角色的"对话"或"内心独白", 也可以是一段"场景"或"剧情"描写。
+    - "对话"指角色与其他角色对话，对应角色有且只有一个
+    - "内心独白"指角色内心活动，对应的角色有且只有一个
+    - "场景"是一段视觉场景的描述，对应角色可以是零个或多个
+    - "剧情"是一段关于剧情推进、解释、说明的描述，对应的角色可以是零个或多个'''
+    type: Literal["对话", "内心", "场景", "剧情"]
+    character_names: Optional[List[str]] = Field(default_factory=list)
     content: str = Field(description="对话内容、内心独白内容、场景描述内容或剧情说明内容，需与原文保持完全一致。")
 
 
@@ -38,5 +39,5 @@ class KeyObject(BaseModel):
 
 class NovelChunk(BaseModel):
     scenes: List[Scene]
-    key_objects: List[KeyObject]
-    characters: List[Character]
+    key_objects: Optional[List[KeyObject]]
+    characters: Optional[List[Character]]
