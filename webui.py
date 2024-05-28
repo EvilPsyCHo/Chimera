@@ -10,7 +10,7 @@ from langchain import hub
 import streamlit as st
 
 # sys.path.append(str(Path(__file__).parent.parent))
-from chimera.core import NovelChunk, Scene, Frame, Character, KeyObject
+from chimera.core import NovelChunk
 
 
 URL = "https://oneapi.yuntu.chat/v1"

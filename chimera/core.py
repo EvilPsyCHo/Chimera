@@ -14,20 +14,32 @@ class Character(BaseModel):
     summary: Optional[str] = Field(default=None, description="character introduction less than 3 sentences, concise but distinctive")
 
 
-class Frame(BaseModel):
-    '''帧(Frame)是场景(Scene)中的一个片段，可以是某名角色的"对话"或"内心独白", 也可以是一段"场景"或"剧情"描写。
-    - "对话"指角色与其他角色对话，对应角色有且只有一个
-    - "内心独白"指角色内心活动，对应的角色有且只有一个
-    - "场景"是一段视觉场景的描述，对应角色可以是零个或多个
-    - "剧情"是一段关于剧情推进、解释、说明的描述，对应的角色可以是零个或多个'''
-    type: Literal["对话", "内心", "场景", "剧情"]
+class DialogueFrame(BaseModel):
+    '''对话帧(DialogueFrame)是一位角色的发言，包含角色发言内容和发言过程中的肢体语言及行为。'''
+    type: Literal["dialogue"]
+    character_name: str = Field(default_factory=list)
+    content: str = Field(description="角色发言，需与原文保持完全一致")
+    action: Optional[str] = Field(description="角色发言过程中的肢体语言或行为，需与原文保持完全一致")
+
+
+class DescriptionFrame(BaseModel):
+    '''描述帧(DescriptionFrame)是一段人物动作描写、剧情解释说明、独白，可以不包含任何角色，也可以包含一个或多个角色'''
+    type: Literal["description"]
     character_names: Optional[List[str]] = Field(default_factory=list)
-    content: str = Field(description="对话内容、内心独白内容、场景描述内容或剧情说明内容，需与原文保持完全一致。")
+    content: str = Field(description="小说原文")
+
+
+class InnerThoughtFrame(BaseModel):
+    '''内心活动帧(InnerThoughtFrame)是一位角色的内心想法或活动'''
+    type: Literal["dialogue"]
+    character_name: str = Field(default_factory=list)
+    content: str = Field(description="角色内心活动或想法，需与原文保持完全一致")
 
 
 class Scene(BaseModel):
-    '''场景(Scene)指故事中发生一段连续剧情，一般场景中的一些要素是连续的，例如地点、时间或人物。场景可能是一段对话，则每一帧(frame)为某位角色的发言，可能是一段情节的描述，例如一支军队的行军过程，每一帧(frame)是对行军过程中的一些场景或剧情的说明'''
-    frames: List[Frame]
+    '''场景(Scene)指故事中发生一段连续剧情，一般场景中的一些要素是连续的，例如地点、时间或人物。场景中会发生角色对话（DialogueFrame），角色内心活动（InnerThoughtFrame）或剧情描写（DescriptionFrame）。'''
+    frames: List[Union[DescriptionFrame, DialogueFrame, InnerThoughtFrame]]
+    environment: str = Field(description="场景视觉环境描写，尽可能保持与原文一致")
 
 
 class KeyObject(BaseModel):
