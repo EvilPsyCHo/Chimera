@@ -36,8 +36,11 @@ with st.form(key="extract novel"):
     extract_button = st.form_submit_button(label='提取小说')
 
 if extract_button:
+    output_parser = PydanticOutputParser(pydantic_object=NovelChunk)
+    prompt_value = prompt.invoke(dict(input=text, format_instruction=output_parser.get_format_instructions()))
     st.text(f"Model: {model}")
     st.text(f"Prompt: {prompt}")
+    st.text(f"System Prompt: {prompt_value.messages[0].content}")
     with st.spinner():
         structured_novel = extract_novelchunk(model, prompt, text)
     st.text(structured_novel.model_dump_json(indent=4))
