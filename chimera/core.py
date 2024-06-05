@@ -14,42 +14,45 @@ class Character(BaseModel):
     summary: Optional[str] = Field(default=None, description="character introduction less than 3 sentences, concise but distinctive")
 
 
-class DialogueFrame(BaseModel):
-    '''对话帧(DialogueFrame)是一位角色的发言，包含角色发言内容和发言过程中的肢体语言及行为。'''
+class CharacterList(BaseModel):
+    characters: List[Character]
+
+
+
+class Dialogue(BaseModel):
+    '''Dialogue指一名角色的发言及附带动作、表情、心理活动'''
     type: Literal["dialogue"]
-    character_name: str = Field(default_factory=list)
+    character_name: str = Field(description="说话的角色名称")
     content: str = Field(description="角色发言，需与原文保持完全一致")
-    action: Optional[str] = Field(description="角色发言过程中的肢体语言或行为，需与原文保持完全一致")
+    additional: Optional[str] = Field(default=None, description="角色发言过程中附带动作、表情、心理活动描写，需与原文保持完全一致。例如：她站起来说道")
 
 
-class DescriptionFrame(BaseModel):
-    '''描述帧(DescriptionFrame)是一段人物动作描写、剧情解释说明、独白，可以不包含任何角色，也可以包含一个或多个角色'''
+class InnerThought(BaseModel):
+    '''InnerThought指一位角色的内心想法及附带的动作、表情'''
+    type: Literal["inner thought"]
+    character_name: str = Field(description="角色名称")
+    content: str = Field(description="角色内心活动或想法，需与原文保持完全一致")
+    additional: Optional[str] = Field(default=None, description="角色的内心活动过程中附带的动作、表情，需与原文保持一致")
+
+
+class Description(BaseModel):
+    '''Description是一段剧情解释或说明文字，可以不包含任何角色，也可以包含一个或多个角色'''
     type: Literal["description"]
     character_names: Optional[List[str]] = Field(default_factory=list)
     content: str = Field(description="小说原文")
 
 
-class InnerThoughtFrame(BaseModel):
-    '''内心活动帧(InnerThoughtFrame)是一位角色的内心想法或活动'''
-    type: Literal["dialogue"]
-    character_name: str = Field(default_factory=list)
-    content: str = Field(description="角色内心活动或想法，需与原文保持完全一致")
+class Picture(BaseModel):
+    ''' Picture是小说中视觉、听觉、味觉等感官描述性文字所组成的画面'''
+    type: Literal["picture"]
+    content: str = Field(description="视觉、听觉、味觉等感官描述性内容，需与原文保持完全一致")
+    character_names: Optional[List[str]] = Field(default_factory=list, description="Picture中出现的角色名称")
+
 
 
 class Scene(BaseModel):
-    '''场景(Scene)指故事中发生一段连续剧情，一般场景中的一些要素是连续的，例如地点、时间或人物。场景中会发生角色对话（DialogueFrame），角色内心活动（InnerThoughtFrame）或剧情描写（DescriptionFrame）。'''
-    frames: List[Union[DescriptionFrame, DialogueFrame, InnerThoughtFrame]]
-    environment: str = Field(description="场景视觉环境描写，尽可能保持与原文一致")
-
-
-class KeyObject(BaseModel):
-    '''小说中被反复提及的关键对象，可能是物品、环境场景或其他'''
-    name: str = Field(description="关键对象的名称")
-    alias: Union[List[str]] = Field(default_factory=list, description="关键对象的别称")
-    description: str = Field(default=None, description="关键对象的详细描述")
-
-
-class NovelChunk(BaseModel):
-    scenes: List[Scene]
-    key_objects: Optional[List[KeyObject]]
-    characters: Optional[List[Character]]
+    '''场景(Scene)指故事中发生一段连续剧情，一般场景中的一些要素是连续的，例如地点、时间或人物。场景中会发生角色对话（Dialogue），角色内心活动（InnerThought），感官描写（Picture）或剧情说明（Description)'''
+    name: str = Field(description="Scene name, generally named with location, time, or event.")
+    environment: str = Field(description="贯穿整个场景视觉环境，描写语言尽可能保持与原文一致")
+    summary: str = Field(description="场景发生的故事简介")
+    frames: List[Union[Picture, Description, InnerThought, Dialogue]]
