@@ -67,7 +67,7 @@ if extract_button:
     with st.spinner("split scenes ..."):
         scenes = split_novel_agent.invoke(novel.dict())
     scene_split_score = get_split_score([[s.start_idx, s.end_idx] for s in scenes], len(novel.content))
-    st.write(f"重叠文本占比（越低越好）: {scene_split_score['overlook_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {scene_split_score['overlap_rate']*100:.1f}%")
+    st.write(f"重叠文本占比（越低越好）: {scene_split_score['overlap_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {scene_split_score['overlook_rate']*100:.1f}%")
     for scene in scenes:
         st.text(scene.json(indent=4, ensure_ascii=False))
 
@@ -79,6 +79,6 @@ if extract_button:
             frames = split_scene_agent.invoke(scene.dict())
         scene_frames[scene.id] = frames
         frame_split_score = get_split_score([[f.start_idx, f.end_idx] for f in frames], len(scene.content))
-        st.write(f"重叠文本占比（越低越好）: {frame_split_score['overlook_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {frame_split_score['overlap_rate']*100:.1f}%")
+        st.write(f"重叠文本占比（越低越好）: {frame_split_score['overlap_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {frame_split_score['overlook_rate']*100:.1f}%")
         for f in frames:
             st.text(f.json(indent=4, ensure_ascii=False))
