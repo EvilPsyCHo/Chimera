@@ -29,3 +29,5 @@ Visit "http://localhost:8000/{chain_name}/playground" to access chain playground
 ```shell
 streamlit run webui.py
 ```
+
+![](./assets/webui.png)
