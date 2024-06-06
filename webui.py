@@ -36,8 +36,7 @@ st.markdown('''### Prompt
 - [小说角色提取](https://smith.langchain.com/prompts/extract_characters?organizationId=951d1030-1685-5ba0-bdfd-d516f2214386)
 - [小说划分场景](https://smith.langchain.com/prompts/split_novel_to_scenes?organizationId=951d1030-1685-5ba0-bdfd-d516f2214386)
 - [场景划分frame](https://smith.langchain.com/prompts/split_scene_to_frames?organizationId=951d1030-1685-5ba0-bdfd-d516f2214386)
-'''
-            )
+''')
 
 
 with st.form(key="extract novel"):

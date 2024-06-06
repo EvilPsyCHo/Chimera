@@ -10,7 +10,7 @@ import numpy as np
 from operator import itemgetter
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 
-from ..core import Scene
+from ..core import Scene, Novel
 from .utils import find_best_match_position
 
 
@@ -43,6 +43,10 @@ def convert_splitter_to_scenes(x):
             index = index
         ))
     return scenes
+
+
+class SplitNovelToScenesInput(Novel):
+    ...
 
 
 def create_split_novel_to_scenes_agent():

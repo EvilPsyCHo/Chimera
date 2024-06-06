@@ -21,6 +21,12 @@ def _extract_novel(x):
     return Novel(**x["extracted"], **x["input"])
 
 
+class ExtractNovelInput(BaseModel):
+    content: str
+    name: Optional[str]
+    author: Optional[str]
+
+
 def create_extract_novel_agent(with_parser=True):
     # input: name, author, content
     chat_model = ChatOpenAI(model=os.environ.get("MODEL"), base_url=os.environ.get("OPENAI_BASE_URL"), api_key=os.environ.get("OPENAI_API_KEY"), temperature=0.3).configurable_fields(
@@ -33,19 +39,3 @@ def create_extract_novel_agent(with_parser=True):
     prompt = hub.pull("kky/extract_novel_info").partial(format_instruction=output_parser.get_format_instructions())
     chain = RunnableParallel(extracted = prompt | chat_model | output_parser, input=RunnablePassthrough()) | RunnableLambda(_extract_novel)
     return chain
-
-
-if __name__ == "__main__":
-    import sys
-    from pathlib import Path
-    from fastapi import FastAPI
-    from langserve import add_routes
-    app = FastAPI(
-    title="LangChain Server",
-    version="1.0",
-    description="Spin up a simple api server using Langchain's Runnable interfaces",
-)
-    chain = create_extract_novel_info_agent(with_parser=False)
-    add_routes(app, chain)
-    import uvicorn
-    uvicorn.run(app, host="localhost", port=8000)

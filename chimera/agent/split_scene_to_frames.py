@@ -11,7 +11,7 @@ from langchain_core.runnables import RunnableLambda
 from operator import itemgetter
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from .utils import find_best_match_position
-from ..core import Frame
+from ..core import Frame, Scene
 
 
 # class Dialogue(BaseModel):
@@ -72,6 +72,9 @@ def convert_splitter_to_frame(x):
             index = index
         ))
     return frames
+
+class SplitSceneToFramesInput(Scene):
+    ...
 
 
 def create_split_scene_to_frames_agent():

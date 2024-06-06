@@ -40,8 +40,8 @@ class Scene(BaseModel):
 
 class Novel(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
-    name: Optional[str] = Field(default="未知")
+    name: Optional[str] = Field(default=None)
     content: str = Field(description="小说原始文本")
-    author: Optional[str] = Field(default="未知", description="小说作者名称，如果小说作者包含多个人，则使用' & '拼接多个作者名称")
+    author: Optional[str] = Field(default=None, description="小说作者名称，如果小说作者包含多个人，则使用' & '拼接多个作者名称")
     summary: Optional[str] = Field(default=None, description="小说故事简介")
     categories: Optional[List[str]] = Field(default_factory=List)

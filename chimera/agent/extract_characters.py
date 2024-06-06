@@ -34,6 +34,10 @@ def convert_to_character_cards(x):
     return cards
 
 
+class ExtractCharactersInput(BaseModel):
+    content: str
+
+
 def create_extract_characters_agent():
     chat_model = ChatOpenAI(model=os.environ.get("MODEL"), base_url=os.environ.get("OPENAI_BASE_URL"), api_key=os.environ.get("OPENAI_API_KEY"), temperature=0.3).configurable_fields(
         model_name=ConfigurableField(id="model_name", name="model_name"),
