@@ -20,7 +20,7 @@ class SceneSplitter(BaseModel):
     summary: str = Field(description="场景中的时间、环境、人物、事件的简介")
     start_sentence: str = Field(description="原文中代表该场景开始时的句子，句子必须和原文保持完全一致，用于将故事切分为场景")
     end_sentence: str = Field(description="原文中代表该场景结束的句子，句子必须和原文保持完全一致，用于将故事切分为场景")
-    # character_names: List[str] = Field(description="场景中的角色名称列表")
+    character_names: List[str] = Field(description="场景中的角色名称列表")
 
 
 class SceneSplitters(BaseModel):
@@ -40,7 +40,8 @@ def convert_splitter_to_scenes(x):
             start_idx = s_idx,
             end_idx=e_idx,
             summary = splitter["summary"],
-            index = index
+            index = index,
+            character_names=splitter["character_names"]
         ))
     return scenes
 

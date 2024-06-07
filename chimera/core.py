@@ -36,6 +36,7 @@ class Scene(BaseModel):
     end_idx: int
     summary: Optional[str] = Field(default=None)
     index: Optional[int] = Field(default=None)
+    character_names: Optional[List[str]]
 
 
 class Novel(BaseModel):
@@ -45,3 +46,4 @@ class Novel(BaseModel):
     author: Optional[str] = Field(default=None, description="小说作者名称，如果小说作者包含多个人，则使用' & '拼接多个作者名称")
     summary: Optional[str] = Field(default=None, description="小说故事简介")
     categories: Optional[List[str]] = Field(default_factory=List)
+    leading_character_names: Optional[List[str]]

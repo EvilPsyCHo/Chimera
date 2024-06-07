@@ -27,6 +27,22 @@ def get_split_score(split_idxes, novel_len):
         "overlook_rate": overlook / novel_len,
     }
 
+
+def search_character(name, characters):
+    for c in characters:
+        if (name == c.name) or (name in c.alias):
+            return c
+
+
+def get_active_characters_desc(scene, chars):
+    desc = "Active characters:\n"
+    for sc in scene["character_names"]:
+        for c in chars:
+            if (c["name"] == sc) or (sc in c["alias"]):
+                desc += f"- Name: {c['name']}, Gender: {c['gender']}, Summary: {c['summary']}\n"
+                break
+    return desc.strip()
+
 extract_novel_info_agent = create_extract_novel_agent()
 extract_chars_agent = create_extract_characters_agent()
 split_novel_agent = create_split_novel_to_scenes_agent()
@@ -69,6 +85,14 @@ if extract_button:
         st.text(char.json(indent=4, ensure_ascii=False))
     with open(novel_path / "characters.json", "w") as f:
         f.write(json.dumps([c.dict() for c in characters], indent=4, ensure_ascii=False))
+    character_names_and_alias = set([c.name for c in characters]) | set()
+
+    st.write("检查主角是否全部包含在提取角色中 ...")
+    for lc in novel.leading_character_names:
+        if search_character(lc, characters) is None:
+            st.write(f"主要角色{lc}未在角色列表中")
+    st.write("检查完毕")
+    
 
 
     st.write("<<STEP 3>> 分割小说场景")
@@ -78,6 +102,11 @@ if extract_button:
     st.write(f"重叠文本占比（越低越好）: {scene_split_score['overlap_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {scene_split_score['overlook_rate']*100:.1f}%")
     for scene in scenes:
         st.text(scene.json(indent=4, ensure_ascii=False))
+        st.write("检查主角是否全部包含在提取角色中 ...")
+        for c in scene.character_names:
+            if search_character(lc, characters) is None:
+                st.write(f"主要角色{lc}未在角色列表中")
+        st.write("检查完毕")
     with open(novel_path / "scenes.json", "w") as f:
         f.write(json.dumps([c.dict() for c in scenes], indent=4, ensure_ascii=False))
 
@@ -86,7 +115,8 @@ if extract_button:
     scene_frames = {}
     for i, scene in enumerate(scenes):
         with st.spinner(f"split scene {i} frames ..."):
-            frames = split_scene_agent.invoke(scene.dict())
+            desc = get_active_characters_desc(scene.dict(), map(lambda x: x.dict(), characters))
+            frames = split_scene_agent.invoke({"characters_desc": desc, **scene.dict()})
         scene_frames[scene.id] = [f.dict() for f in frames]
         frame_split_score = get_split_score([[f.start_idx, f.end_idx] for f in frames], len(scene.content))
         st.write(f"重叠文本占比（越低越好）: {frame_split_score['overlap_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {frame_split_score['overlook_rate']*100:.1f}%")

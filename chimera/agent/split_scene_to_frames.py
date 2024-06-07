@@ -9,9 +9,9 @@ from typing import Optional, Union, List, Dict, Any, Literal
 import numpy as np
 from langchain_core.runnables import RunnableLambda
 from operator import itemgetter
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda, RunnableAssign
 from .utils import find_best_match_position
-from ..core import Frame, Scene
+from ..core import Frame, Scene, Character
 
 
 # class Dialogue(BaseModel):
@@ -74,7 +74,7 @@ def convert_splitter_to_frame(x):
     return frames
 
 class SplitSceneToFramesInput(Scene):
-    ...
+    characters_desc: str
 
 
 def create_split_scene_to_frames_agent():
