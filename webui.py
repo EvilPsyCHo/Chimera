@@ -6,6 +6,8 @@ import openai
 import streamlit as st
 import json
 
+save_path = Path(__file__).parent / "data"
+
 from chimera.agent import create_extract_novel_agent, create_split_novel_to_scenes_agent, create_extract_characters_agent, create_split_scene_to_frames_agent
 from chimera.core import Novel, Scene, Frame, Character
 
@@ -53,6 +55,11 @@ if extract_button:
     with st.spinner(f"Extract novel info ..."):
         novel = extract_novel_info_agent.invoke(dict(content=text, name=novel_name, author=novel_author))
     st.text(novel.json(indent=4, ensure_ascii=False))
+
+    novel_path = save_path / novel.id
+    novel_path.mkdir(exist_ok=True, parents=True)
+    with open(novel_path / "novel.json", "w") as f:
+        f.write(json.dumps(novel.dict(), indent=4, ensure_ascii=False))
     
 
     st.write("<<STEP 2>> 提取小说角色")
@@ -60,6 +67,8 @@ if extract_button:
         characters = extract_chars_agent.invoke({"input": text})
     for char in characters:
         st.text(char.json(indent=4, ensure_ascii=False))
+    with open(novel_path / "characters.json", "w") as f:
+        f.write(json.dumps([c.dict() for c in characters], indent=4, ensure_ascii=False))
 
 
     st.write("<<STEP 3>> 分割小说场景")
@@ -69,6 +78,8 @@ if extract_button:
     st.write(f"重叠文本占比（越低越好）: {scene_split_score['overlap_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {scene_split_score['overlook_rate']*100:.1f}%")
     for scene in scenes:
         st.text(scene.json(indent=4, ensure_ascii=False))
+    with open(novel_path / "scenes.json", "w") as f:
+        f.write(json.dumps([c.dict() for c in scenes], indent=4, ensure_ascii=False))
 
 
     st.write("<<STEP 4>> 分割小说帧")
@@ -76,8 +87,10 @@ if extract_button:
     for i, scene in enumerate(scenes):
         with st.spinner(f"split scene {i} frames ..."):
             frames = split_scene_agent.invoke(scene.dict())
-        scene_frames[scene.id] = frames
+        scene_frames[scene.id] = [f.dict() for f in frames]
         frame_split_score = get_split_score([[f.start_idx, f.end_idx] for f in frames], len(scene.content))
         st.write(f"重叠文本占比（越低越好）: {frame_split_score['overlap_rate'] * 100:.1f}%, 忽略文本占比（越低越好）: {frame_split_score['overlook_rate']*100:.1f}%")
         for f in frames:
             st.text(f.json(indent=4, ensure_ascii=False))
+    with open(novel_path / "frames.json", "w") as f:
+        f.write(json.dumps(scene_frames, indent=4, ensure_ascii=False))
