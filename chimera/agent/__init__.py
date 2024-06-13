@@ -2,3 +2,6 @@ from .extract_characters import create_extract_characters_agent, ExtractCharacte
 from .extract_novel import create_extract_novel_agent, ExtractNovelInput
 from .split_novel_to_scenes import create_split_novel_to_scenes_agent, SplitNovelToScenesInput
 from .split_scene_to_frames import create_split_scene_to_frames_agent, SplitSceneToFramesInput
+from .generate_sd_prompt import create_generate_sd_prompt_agent, GenerateSDPromptAgentInput
+from .simple_roleplay_chat import create_simple_roleplay_agent, SimpleRoleplayInput
+from .roleplay_chat import RoleplayInput, create_roleplay_agent

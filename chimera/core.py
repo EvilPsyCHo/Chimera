@@ -8,7 +8,7 @@ class Character(BaseModel):
     name: str = Field(description="角色名称", example="Elon musk")
     alias: Optional[List[str]] = Field(default_factory=list, description="角色别称、昵称", example="Elon")
     gender: Optional[str] = Field(default=None, description="Female, Male, or Other. If not mentioned, then None.", example="Male")
-    age: Optional[Union[str, int]] = Field(default=None, description="Age number or description. If not mentioned, then None.", examples="Young adult")
+    age: Optional[Union[str, int]] = Field(default=None, description="Age number or description. If not mentioned, then None.", example="Young adult")
     appearance: Optional[str] = Field(default=None, description="The inherent appearance characteristics of the character, such as facial features, face shape, body shape, etc.", example="Orange long hair, deep eyes")
     personality: Optional[str] = Field(default=None, description="Personality traits, interests and hobbies, dislikes, speech patterns and catchphrases, habitual gestures, and body language. If not mentioned, then None.", example=None)
     background: Optional[str] = Field(default=None, description="角色的背景设定，例如职业、教育背景、家庭背景等", example="Single, parents divorced, sophomore in college")
@@ -85,7 +85,7 @@ class User(BaseModel):
 
 
 class Message(BaseModel):
-    role: str
+    role: Literal["assistant", "user"]
     content: str
     type: Literal["character", "user"]
     turn: Union[User, Character, Any]
@@ -93,4 +93,11 @@ class Message(BaseModel):
 
 class Session(BaseModel):
     messages: List[Message]
-    turn: Union[User, Character, Any]
+    turn: Union[User, Character]
+
+
+class Picture(BaseModel):
+    scene_id: str
+    index: int
+    description: str
+    character_names: Optional[List[str]]

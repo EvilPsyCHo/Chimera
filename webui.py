@@ -8,7 +8,7 @@ import json
 
 save_path = Path(__file__).parent / "data"
 
-from chimera.agent import create_extract_novel_agent, create_split_novel_to_scenes_agent, create_extract_characters_agent, create_split_scene_to_frames_agent
+from chimera.agent import create_extract_novel_agent, create_split_novel_to_scenes_agent, create_extract_characters_agent, create_split_scene_to_frames_agent, create_generate_sd_prompt_agent
 from chimera.core import Novel, Scene, Frame, Character
 from chimera.memory import CharMemory
 
@@ -49,6 +49,7 @@ extract_novel_info_agent = create_extract_novel_agent()
 extract_chars_agent = create_extract_characters_agent()
 split_novel_agent = create_split_novel_to_scenes_agent()
 split_scene_agent = create_split_scene_to_frames_agent()
+generate_sd_prompt_agent = create_generate_sd_prompt_agent()
 
 
 st.markdown('''### Prompt
@@ -137,3 +138,27 @@ if extract_button:
             else:
                 for char in f["participant_names"]:
                     memory.add(f["content"], scene.index, char)
+
+    st.write("<<STEP 6>> 转化sd prompt")
+
+    sd_prompt = {}
+    for scene_id, frames in scene_frames.items():
+        sd_prompt[scene_id] = []
+        input_frames = []
+        for f in frames:
+            if f["type"] == "description":
+                input_frames.append(f)
+            else:
+                if len(input_frames) > 0:
+                    input_character_names = list(set([name for f in input_frames if f["participant_names"] for name in f["participant_names"]]))
+                    input_characters = []
+                    for c in characters:
+                        if c.name in input_character_names:
+                            input_characters.append(c.dict())
+
+                    pic = generate_sd_prompt_agent.invoke({"frames": input_frames, "characters": input_characters})
+                    input_frames = []
+                    sd_prompt[scene_id].append(pic)
+                    st.text(json.dumps(pic, indent=4, ensure_ascii=False))
+    with open(novel_path / "sd_prompts.json", "w") as f:
+        f.write(json.dumps(sd_prompt, indent=4, ensure_ascii=False))

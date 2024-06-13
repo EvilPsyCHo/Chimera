@@ -1,9 +1,9 @@
-from chimera.agent.roleplay_chat import create_simple_roleplay_agent
+from chimera.agent.roleplay_chat import create_roleplay_agent
 from chimera.memory import CharMemory
 import os
 from pathlib import Path
 
-chat_agent = create_simple_roleplay_agent()
+chat_agent = create_roleplay_agent()
 save_path = Path(__file__).parent / "data"
 novel_list = list(map(lambda x: x.name, save_path.iterdir()))
 user = {"name": "kky"}
@@ -13,16 +13,15 @@ from pathlib import Path
 import json
 
 
-def role_response(text):
+def role_response(text, memory):
     st.session_state["messages"].append(
         {"role": "user", "content": text, "type": "user", "turn": user}
     )
-    output = chat_agent.invoke({"messages": st.session_state["messages"], "turn": st.session_state["character"]})
+    output = chat_agent.invoke({"messages": st.session_state["messages"], "turn": st.session_state["character"], "memory": memory})
     st.session_state["messages"].append(
         {"role": "assistant", "content": output, "type": "character", "turn": st.session_state["character"]}
     )
     return output
-
 
 
 with st.form(key="chat"):
@@ -50,6 +49,6 @@ if user_input:
     retrieval = st.session_state["memory"].query(user_input, scene_index=st.session_state["scene_index"], character_name=st.session_state["character"]["name"])
     st.write("Memory:")
     st.text(retrieval)
-    response = role_response(user_input)
+    response = role_response(user_input, retrieval)
     st.write("response:")
     st.write(response)

@@ -4,7 +4,7 @@ from langchain_core.output_parsers import JsonOutputParser, PydanticOutputParser
 from langchain import hub
 from langchain.runnables.hub import HubRunnable
 import os
-from chimera.memory import CharMemory
+
 from chimera.core import Session
 
 
@@ -41,15 +41,14 @@ def prepare_input(session):
         "char_profile": profile,
         "char": turn["name"],
         "history": history,
-        "memory": session["memory"],
     }
 
 
-class RoleplayInput(Session):
-    memory: str
+class SimpleRoleplayInput(Session):
+    ...
 
 
-def create_roleplay_agent():
+def create_simple_roleplay_agent():
     chat_model = ChatOpenAI(model=os.environ.get("MODEL"), base_url=os.environ.get("OPENAI_BASE_URL"), api_key=os.environ.get("OPENAI_API_KEY"), temperature=0.3).configurable_fields(
         model_name=ConfigurableField(id="model_name", name="model_name"),
         openai_api_base=ConfigurableField(id="openai_base_url", name="openai_base_url"),
@@ -57,6 +56,6 @@ def create_roleplay_agent():
         temperature=ConfigurableField(id="temperature",name="temperature", description="The temperature of the LLM"),
         )
     output_parser = StrOutputParser()
-    prompt = hub.pull("kky/roleplay_chat_v1")
+    prompt = hub.pull("kky/simple_roleplay_chat")
     chain = RunnableLambda(prepare_input) | prompt | chat_model | output_parser
     return chain
