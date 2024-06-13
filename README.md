@@ -10,19 +10,17 @@ conda activate chimera
 pip install -r requirements.txt
 ```
 
-## Deploy
+## 角色聊天服务
 
 ```shell
-python server.py # The default host is "localhost" with port "8000"
+python server.py --memory_path "小说路径"
 ```
 
-Visit "http://localhost:8000/docs" to access API documentation.
+## 角色聊天DEMO
 
-![](./assets/api_docs.png)
-
-Visit "http://localhost:8000/{chain_name}/playground" to access chain playground and test its performance.
-
-![](./assets/chain_playground.png)
+```shell
+streamlit run chat.py
+```
 
 ## webui
 
