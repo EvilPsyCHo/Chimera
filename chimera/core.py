@@ -16,14 +16,45 @@ class Character(BaseModel):
     summary: Optional[str] = Field(default=None, description="character introduction less than 3 sentences, concise but distinctive")
 
 
+# class Dialogue(BaseModel):
+#     id: str = Field(default_factory=lambda: str(uuid4()))
+#     type: Literal["dialogue"]
+#     content: str
+#     scene_id: str
+#     start_idx: int
+#     end_idx: int
+#     speaker_name: str
+
+
+# class InnerThought(BaseModel):
+#     id: str = Field(default_factory=lambda: str(uuid4()))
+#     type: Literal["inner thought"]
+#     content: str
+#     scene_id: str
+#     start_idx: int
+#     end_idx: int
+#     speaker_name: str
+
+
+# class Description(BaseModel):
+#     id: str = Field(default_factory=lambda: str(uuid4()))
+#     type: Literal["description"]
+#     content: str
+#     scene_id: str
+#     start_idx: int
+#     end_idx: int
+#     participant_names: Optional[List[str]]
+
+
 class Frame(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
-    type: Literal["picture", "description", "dialogue", "inner thought"]
+    type: Literal["description", "dialogue"]
     content: str
     scene_id: str
     start_idx: int
     end_idx: int
-    character_names: List[str]
+    speaker_name: Optional[str]
+    participant_names: Optional[List[str]]
     index: Optional[int]
 
 
@@ -47,3 +78,19 @@ class Novel(BaseModel):
     summary: Optional[str] = Field(default=None, description="小说故事简介")
     categories: Optional[List[str]] = Field(default_factory=List)
     leading_character_names: Optional[List[str]]
+
+
+class User(BaseModel):
+    name: str
+
+
+class Message(BaseModel):
+    role: str
+    content: str
+    type: Literal["character", "user"]
+    turn: Union[User, Character, Any]
+
+
+class Session(BaseModel):
+    messages: List[Message]
+    turn: Union[User, Character, Any]

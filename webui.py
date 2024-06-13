@@ -10,6 +10,8 @@ save_path = Path(__file__).parent / "data"
 
 from chimera.agent import create_extract_novel_agent, create_split_novel_to_scenes_agent, create_extract_characters_agent, create_split_scene_to_frames_agent
 from chimera.core import Novel, Scene, Frame, Character
+from chimera.memory import CharMemory
+
 
 def get_split_score(split_idxes, novel_len):
     overlap = 0
@@ -72,7 +74,7 @@ if extract_button:
         novel = extract_novel_info_agent.invoke(dict(content=text, name=novel_name, author=novel_author))
     st.text(novel.json(indent=4, ensure_ascii=False))
 
-    novel_path = save_path / novel.id
+    novel_path = save_path / novel.name
     novel_path.mkdir(exist_ok=True, parents=True)
     with open(novel_path / "novel.json", "w") as f:
         f.write(json.dumps(novel.dict(), indent=4, ensure_ascii=False))
@@ -114,7 +116,7 @@ if extract_button:
     st.write("<<STEP 4>> 分割小说帧")
     scene_frames = {}
     for i, scene in enumerate(scenes):
-        with st.spinner(f"split scene {i} frames ..."):
+        with st.spinner(f"split {i}th scene frames ..."):
             desc = get_active_characters_desc(scene.dict(), map(lambda x: x.dict(), characters))
             frames = split_scene_agent.invoke({"characters_desc": desc, **scene.dict()})
         scene_frames[scene.id] = [f.dict() for f in frames]
@@ -124,3 +126,14 @@ if extract_button:
             st.text(f.json(indent=4, ensure_ascii=False))
     with open(novel_path / "frames.json", "w") as f:
         f.write(json.dumps(scene_frames, indent=4, ensure_ascii=False))
+    
+
+    st.write("<<STEP 5>> 存储角色记忆")
+    memory = CharMemory(str(novel_path), "char")
+    for scene in scenes:
+        for f in scene_frames[scene.id]:
+            if f["type"] == "dialogue":
+                memory.add(f["content"], scene.index, f["speaker_name"])
+            else:
+                for char in f["participant_names"]:
+                    memory.add(f["content"], scene.index, char)

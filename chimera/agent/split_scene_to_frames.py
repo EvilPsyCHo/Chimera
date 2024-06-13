@@ -43,18 +43,44 @@ from ..core import Frame, Scene, Character
 #     content: str = Field(description="视觉、听觉、味觉等感官描述性内容，需与原文保持完全一致")
 #     character_names: Optional[List[str]] = Field(default_factory=list, description="Picture中出现的角色名称")
 
+
+class Dialogue(BaseModel):
+    type: Literal["dialogue"]
+    content: str
+    scene_id: str
+    start_idx: int
+    end_idx: int
+    speaker_name: str
+
+
+class InnerThought(BaseModel):
+    type: Literal["inner thought"]
+    content: str
+    scene_id: str
+    start_idx: int
+    end_idx: int
+    speaker_name: str
+
+
+class Description(BaseModel):
+    type: Literal["description"]
+    content: str
+    scene_id: str
+    start_idx: int
+    end_idx: int
+    participant_names: Optional[List[str]]
+
+
 class FrameSplitter(BaseModel):
-    '''Frame是故事中的一个片段，片段有4种类型，分别是picture, description, dialogue, inner thought。'''
-    type: Literal["picture", "description", "dialogue", "inner thought"]
-    start_sentence: str
+    type: Literal["description", "dialogue"]
     start_sentence: str = Field(description="原文中代表该Frame开始时的句子，句子必须和原文保持完全一致，用于将故事片段切分为Frame")
     end_sentence: str = Field(description="原文中代表该Frame开始时的句子，句子必须和原文保持完全一致，用于将故事片段切分为Frame")
-    character_names: List[str]
-
+    participant_names: Optional[List[str]]
+    speaker_name: Optional[str]
 
 
 class FrameSplitters(BaseModel):
-    frame_splitters: List[FrameSplitter] = Field(description="上一个frame的end_sentence与下一个frame的start_sentence应该在原文中是紧邻的两句话")
+    frame_splitters: List[FrameSplitter]
 
 
 def convert_splitter_to_frame(x):
@@ -68,10 +94,22 @@ def convert_splitter_to_frame(x):
             scene_id = scene["id"],
             start_idx = s_idx,
             end_idx=e_idx,
-            character_names = splitter["character_names"],
-            index = index
+            participant_names = splitter.get("participant_names"),
+            speaker_name = splitter.get("speaker_name"),
+            index = index,
         ))
-    return frames
+    index = 0
+    new_frames = []
+    for f0, f1 in zip(frames[:-1], frames[1:]):
+        f0.end_idx = min(f0.end_idx, f1.start_idx-1)
+        if f0.end_idx > f0.start_idx:
+            f0.index = index
+            new_frames.append(f0)
+            index += 1
+    f1.index = index
+    new_frames.append(f1)
+    return new_frames
+
 
 class SplitSceneToFramesInput(Scene):
     characters_desc: str
