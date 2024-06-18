@@ -4,7 +4,6 @@ from langchain_core.output_parsers import JsonOutputParser, PydanticOutputParser
 from langchain import hub
 from langchain.runnables.hub import HubRunnable
 import os
-from chimera.memory import CharMemory
 from chimera.core import Session
 
 

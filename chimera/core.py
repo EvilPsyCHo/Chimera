@@ -101,3 +101,5 @@ class Picture(BaseModel):
     index: int
     description: str
     character_names: Optional[List[str]]
+
+

@@ -19,28 +19,26 @@ class GenerateSDPromptAgentInput(BaseModel):
 
 def format_char(char):
     return f'''Name: {char["name"]}
-Alias: {",".join(char["alias"]) if len(char["alias"]) > 0 else "None"}
 Gender: {char["gender"]}
 Age: {char["age"]}
 Appearance: {char["appearance"]}
-Personality: {char["personality"]}
-Background: {char["background"]}
-Value_and_beliefs: {char["value_and_beliefs"]}
 Summary: {char["summary"]}'''
 
 
 def _convert_to_input(x):
-    frames = x["frames"]
-    characters = "Characters:\n" + "\n\n".join([format_char(c) for c in x["characters"]])
-    
-    scene_id = frames[0]["scene_id"]
-    index = frames[0]["index"]
-    descrption = "\n".join([f["content"] for f in frames])
-    character_names = list(set([name for f in frames if f["participant_names"] for name in f["participant_names"]]))
+    frame = x["frame"]
+    characters = frame["participant_names"]
+    scene_id = frame["scene_id"]
+    index = frame["index"]
+    descrption = f"当前场景：\n{frame['content']}\n\n场景相关的小说内容:\n{x['context']}"
+    if len(x["characters"]) > 0:
+        characters = "\n".join(list(map(format_char, x["characters"])))
+        descrption = descrption + f'\n\n场景中的角色：\n{characters}'
+    character_names = frame["participant_names"]
     return {
         "scene_id": scene_id,
         "index": index,
-        "description": descrption + characters,
+        "description": descrption,
         "character_names": character_names,
     }
 

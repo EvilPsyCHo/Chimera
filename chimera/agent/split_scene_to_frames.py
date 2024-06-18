@@ -104,10 +104,12 @@ def convert_splitter_to_frame(x):
         f0.end_idx = min(f0.end_idx, f1.start_idx-1)
         if f0.end_idx > f0.start_idx:
             f0.index = index
+            f0.content = scene["content"][f0.start_idx: f0.end_idx]
             new_frames.append(f0)
             index += 1
-    f1.index = index
-    new_frames.append(f1)
+    if len(frames) > 1:
+        f1.index = index
+        new_frames.append(f1)
     return new_frames
 
 

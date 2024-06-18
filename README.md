@@ -29,3 +29,11 @@ streamlit run webui.py
 ```
 
 ![](./assets/webui.png)
+
+## Model
+```shell
+pip install -U huggingface_hub
+export HF_ENDPOINT=https://hf-mirror.com
+huggingface-cli download --resume-download shibing624/text2vec-base-chinese --local-dir /Users/kky/project/Chimera/models/text2vec-base-chinese --local-dir-use-s
+imlinks False
+```
